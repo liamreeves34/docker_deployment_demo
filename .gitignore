@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Downloaded datasets and trained weights stay out of git.
+data/*
+!data/.gitkeep
+models/*
+!models/.gitkeep
