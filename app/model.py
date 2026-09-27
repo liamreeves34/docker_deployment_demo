@@ -1,54 +1,34 @@
-"""Model definition for the MNIST hand-written digit classifier."""
+"""The neural network itself.
 
+train.py and predict.py both import DigitClassifier from here. Saved weights
+only fit a network with exactly this shape, so keeping the definition in one
+shared file guarantees that training and prediction always agree.
+"""
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-
-# MNIST images are 1x28x28 grayscale, labelled 0-9.
-INPUT_SHAPE = (1, 28, 28)
-NUM_CLASSES = 10
 
 
-class DigitNet(nn.Module):
-    """A small convolutional net for 28x28 grayscale digits.
+class DigitClassifier(nn.Module):
+    """784 pixels in -> 128 hidden values -> 10 scores out, one per digit.
 
-    Two conv blocks (each conv -> ReLU -> max-pool) take the image down to
-    64x7x7, which a two-layer classifier head maps to one logit per digit.
+    It holds 101,770 adjustable numbers (weights and biases). They start out
+    random; training is the process of tuning them.
     """
 
-    def __init__(self, num_classes: int = NUM_CLASSES, dropout: float = 0.25):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.pool = nn.MaxPool2d(2)
-        self.dropout = nn.Dropout(dropout)
-        self.fc1 = nn.Linear(64 * 7 * 7, 128)
-        self.fc2 = nn.Linear(128, num_classes)
+    def __init__(self):
+        super().__init__()  # standard PyTorch setup; every model starts with this
+        # A Linear layer computes each of its outputs as a weighted sum of all of
+        # its inputs, plus a bias. Those weights and biases are what training tunes.
+        self.hidden = nn.Linear(28 * 28, 128)  # 784 inputs -> 128 outputs
+        self.output = nn.Linear(128, 10)       # 128 inputs -> 10 outputs
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Map a batch of images (N, 1, 28, 28) to logits (N, num_classes)."""
-        x = self.pool(F.relu(self.conv1(x)))  # -> (N, 32, 14, 14)
-        x = self.pool(F.relu(self.conv2(x)))  # -> (N, 64, 7, 7)
-        x = torch.flatten(x, 1)
-        x = self.dropout(F.relu(self.fc1(x)))
-        return self.fc2(x)
+    def forward(self, x):
+        """Run a batch of images through the network. model(images) calls this."""
+        # x arrives as (batch, 1, 28, 28): a stack of one-channel 28x28 images.
+        x = x.flatten(start_dim=1)  # -> (batch, 784): each image as one long row of pixels
+        x = self.hidden(x)          # -> (batch, 128)
+        # ReLU turns negative values into 0. Without this bend, two Linear layers
+        # in a row are mathematically the same as one, and the extra layer is wasted.
+        x = torch.relu(x)
+        return self.output(x)       # -> (batch, 10): the highest score is the guess
 
-    @torch.no_grad()
-    def predict(self, x: torch.Tensor) -> torch.Tensor:
-        """Return the predicted digit for each image in the batch."""
-        self.eval()
-        return self.forward(x).argmax(dim=1)
-
-
-def build_model(num_classes: int = NUM_CLASSES) -> DigitNet:
-    """Create an untrained DigitNet. Entry point for training and serving."""
-    return DigitNet(num_classes=num_classes)
-
-
-if __name__ == "__main__":
-    model = build_model()
-    batch = torch.randn(4, *INPUT_SHAPE)
-    print(model)
-    print("logits:", model(batch).shape)
-    print("predictions:", model.predict(batch).tolist())
-    print("parameters:", sum(p.numel() for p in model.parameters()))
