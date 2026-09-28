@@ -8,3 +8,6 @@ data/*
 !data/.gitkeep
 models/*
 !models/.gitkeep
+!models/predict.py
+!models/simple_model.py
+!models/train.py
