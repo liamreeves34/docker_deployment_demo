@@ -11,3 +11,4 @@ models/*
 !models/predict.py
 !models/simple_model.py
 !models/train.py
+!__init__.py

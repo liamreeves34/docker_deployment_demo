@@ -12,7 +12,7 @@ from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
-from models.simple_model import Digit_Classifier
+from app.models.simple_model import Digit_Classifier
 
 # Settings worth experimenting with once everything works.
 BATCH_SIZE = 64       # images the model sees per weight update
