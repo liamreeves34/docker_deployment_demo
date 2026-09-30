@@ -1,0 +1,14 @@
+# Ignore top-level data and testing folders
+data/
+documents/
+samples/
+mydigits/
+
+# Ignore local environments and cache
+venv/
+.env/
+__pycache__/
+.git/
+
+# Ignore training scripts inside the app folder
+app/models/train.py

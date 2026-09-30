@@ -14,7 +14,7 @@ import numpy as np
 import torch
 from PIL import Image, ImageFilter
 
-from app.models.simple_model import Digit_Classifier
+from models.simple_model import Digit_Classifier
 
 
 class DigitPredictor:
