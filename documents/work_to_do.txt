@@ -1,0 +1,3 @@
+figure out the intricicies of docker and how it works with imaging/caching/allowing other people to do stuff
+figure out how curl works consistently
+start writing the instructional.
