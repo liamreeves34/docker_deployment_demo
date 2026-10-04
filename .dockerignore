@@ -12,3 +12,5 @@ __pycache__/
 
 # Ignore training scripts inside the app folder
 app/models/train.py
+# Ignore compiled Python files in the app folder, they will be built during the Docker image creation
+app/__pycache__/
